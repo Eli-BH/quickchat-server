@@ -3,6 +3,9 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
+require("dotenv").config();
+
+//basic auth routes
 
 router.post("/register", async (req, res) => {
   try {
@@ -19,8 +22,9 @@ router.post("/register", async (req, res) => {
     });
 
     await user.save();
+    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET);
 
-    res.status(201).send("User created");
+    res.status(201).json({ accessToken: accessToken });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -38,12 +42,38 @@ router.post("/login", async (req, res) => {
 
     //compare the password to the hashed password
     if (validPass) {
-      res.status(200).send(user);
+      const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET);
+      res.status(200).json({ accessToken: accessToken });
     } else {
       res.status(500).send("Incorrect Credentials");
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json(error);
   }
 });
+
+router.get("/users", authenticateToken, async (req, res) => {
+  try {
+    let user = await User.findOne({ email: req.user.email });
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token === null) return res.status(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, { user }) => {
+    if (err) return res.status(403);
+
+    req.user = user;
+    next();
+  });
+}
 module.exports = router;
