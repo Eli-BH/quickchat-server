@@ -24,9 +24,10 @@ router.post("/register", async (req, res) => {
     await user.save();
     const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET);
 
-    res.status(201).json({ accessToken: accessToken });
+    res.status(201).send(accessToken);
   } catch (error) {
     res.status(500).json(error);
+    console.log(error);
   }
 });
 
@@ -43,7 +44,7 @@ router.post("/login", async (req, res) => {
     //compare the password to the hashed password
     if (validPass) {
       const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET);
-      res.status(200).json({ accessToken: accessToken });
+      res.status(200).send(accessToken);
     } else {
       res.status(500).send("Incorrect Credentials");
     }
