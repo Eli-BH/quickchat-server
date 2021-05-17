@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 
 const roomSchema = mongoose.Schema({
-  rooms: {
-    type: Array,
-    default: [],
+  name: {
+    type: String,
+    required: true,
+    lowercase: true,
   },
 });
 
