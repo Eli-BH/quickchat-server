@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 const router = express.Router();
 require("dotenv").config();
 
@@ -54,11 +55,15 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/users", authenticateToken, async (req, res) => {
+router.get("/user", authenticateToken, async (req, res) => {
   try {
     let user = await User.findOne({ email: req.user.email });
-
-    res.status(200).json(user);
+    const userInfo = {
+      username: user.username,
+      _id: user._id,
+      email: user.email,
+    };
+    res.status(200).json(userInfo);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
