@@ -7,7 +7,7 @@ const roomRoutes = require("./Routes/roomRouter");
 const socket = require("socket.io");
 const app = express();
 
-const port = 3001 || process.env.PORT;
+const port = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(cors());
